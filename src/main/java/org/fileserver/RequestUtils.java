@@ -7,12 +7,12 @@ import java.util.Map.Entry;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderResult;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.util.CharsetUtil;
+import org.fileserver.resthelper.ParsedRequest;
 
 class RequestUtils {
 
@@ -41,39 +41,9 @@ class RequestUtils {
         QueryStringDecoder queryStringDecoder = new QueryStringDecoder(request.uri());
         ParsedRequest parsedRequest = new ParsedRequest();
         parsedRequest.setUri(queryStringDecoder.path());
-        parsedRequest.setUri(queryStringDecoder.parameters());
+        parsedRequest.setParams(queryStringDecoder.parameters());
         parsedRequest.setHttpMethod(request.method());
         return parsedRequest;
-    }
-
-    public static class ParsedRequest {
-        private String uri;
-        private Map<String, List<String>> params;
-        private HttpMethod httpMethod;
-
-        public void setHttpMethod(HttpMethod httpMethod) {
-            this.httpMethod = httpMethod;
-        }
-
-        public void setParams(Map<String, List<String>> params) {
-            this.params = params;
-        }
-
-        public void setUri(String uri) {
-            this.uri = uri;
-        }
-
-        public HttpMethod getHttpMethod() {
-            return httpMethod;
-        }
-
-        public Map<String, List<String>> getParams() {
-            return params;
-        }
-
-        public String getUri() {
-            return uri;
-        }
     }
 
     static StringBuilder formatBody(HttpContent httpContent) {

@@ -23,6 +23,8 @@ import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedFile;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.SystemPropertyUtil;
+import org.fileserver.resthelper.ApiHandler;
+import org.fileserver.resthelper.ParsedRequest;
 
 import javax.activation.MimetypesFileTypeMap;
 import java.io.File;
@@ -31,6 +33,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.file.Files;
 import java.text.ParseException;
 import java.util.regex.Pattern;
 
@@ -56,7 +59,7 @@ public class CustomHttpServerHandler extends SimpleChannelInboundHandler<FullHtt
         }
 
         final boolean keepAlive = HttpUtil.isKeepAlive(request);
-        RequestUtils.ParsedRequest parsedRequest = RequestUtils.getParsedRequest(request);
+        ParsedRequest parsedRequest = RequestUtils.getParsedRequest(request);
         if ((parsedRequest.getUri().isEmpty()
                 || parsedRequest.getUri().equals("/")) && GET.equals(request.method())) {
             parsedRequest.setUri("/index.html");
@@ -64,7 +67,7 @@ public class CustomHttpServerHandler extends SimpleChannelInboundHandler<FullHtt
 
         if (parsedRequest.getUri().startsWith("/api/")) {
             //api request
-
+            sendAndCleanupConnection(ctx, ApiHandler.invokeMethod(parsedRequest));
         } else {
             //is a static page request
             serveStaticFile(ctx, request, keepAlive, parsedRequest.getUri());
